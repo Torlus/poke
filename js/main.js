@@ -5,26 +5,34 @@
 		$('#lyra-post').width($('#lyra-cc').width());
 		$('#lyra-post').height($('#lyra-cc').height());
 		$('#lyra-poster').load(function() {
-			// $('#lyra-poster').contents().find('body').html('Hey, ive changed content of body! Yay!!!');
-			var form = $('#lyra-poster').contents().find('#lyra-form');
-			function add(key, value) {
-				form.append('<input type="hidden" name="' + key + '" value="' + value + '">');
-			}
+			var url = document.location.origin + document.location.pathname	 + 'lyra-back.html';
+			// var url = 'lyra-back.html';			
+			// var form = $('#lyra-poster').contents().find('#lyra-form');
+			var iframe = document.getElementById('lyra-poster');
+			var iframe_data = '';
+			
 			var p = {};
-			//p["vads_action_mode"] = "SILENT";
-			p["vads_action_mode"] = "INTERACTIVE";
-			p["vads_amount"] = "1337";
-			p["vads_capture_delay"] = "0";
-			//p["vads_card_number"] = "4970100000000000";
-			p["vads_ctx_mode"] = "TEST";
-			p["vads_currency"] = "978";
-			//p["vads_cvv"] = "123";
-			//p["vads_expiry_month"] = "5";
-			//p['vads_expiry_year'] = "2017";
-			p['vads_page_action'] = "PAYMENT";
-			p['vads_payment_cards'] = "VISA";
-			p['vads_payment_config'] = "SINGLE";
-			p['vads_site_id'] = "29035693";
+			function add(key, value) {
+				p[key] = value;
+				// form.append('<input type="hidden" name="' + key + '" value="' + value + '">');
+				iframe_data += '<input type="hidden" name="' + key + '" value="' + value + '">';
+			}
+			
+			add("vads_action_mode", "SILENT");
+			// add("vads_action_mode", "INTERACTIVE");
+			add("vads_amount", "1337");
+			add("vads_capture_delay", "0");
+			add("vads_card_number", "4970100000000000");
+			add("vads_ctx_mode", "TEST");
+			add("vads_currency", "978");
+			add("vads_cvv", "123");
+			add("vads_expiry_month", "5");
+			add('vads_expiry_year', "2017");
+			add('vads_page_action', "PAYMENT");
+			add('vads_payment_cards', "VISA");
+			add('vads_payment_config', "SINGLE");
+			add('vads_return_mode', "GET");
+			add('vads_site_id', "29035693");
 			var now = new Date();
 			var mm = '' + (now.getUTCMonth() + 1);
 			while(mm.length < 2) mm = "0" + mm;
@@ -36,195 +44,255 @@
 			while(nn.length < 2) nn = "0" + nn;
 			var ss = '' + now.getUTCSeconds();
 			while(ss.length < 2) ss = "0" + ss;
-			p['vads_trans_date'] = now.getUTCFullYear() + mm + dd + hh + nn + ss;
-			p['vads_trans_id'] = hh + nn + ss;
-			p['vads_version'] = "V2";
+			add('vads_trans_date', now.getUTCFullYear() + mm + dd + hh + nn + ss);
+			add('vads_trans_id', hh + nn + ss);
+			add('vads_url_cancel', url);
+			add('vads_url_error', url);
+			add('vads_url_refused', url);
+			add('vads_url_success', url);
+			add('vads_version', "V2");
 			var sigcnt = "";
 			for(var idx in p) { 
-				console.log(p[idx]); 
-				console.log(idx); 
 				sigcnt += p[idx] + '+'; 
 			};
 			sigcnt += "1910412435639844";
 			console.log(sigcnt);
 			add("signature", sha1(sigcnt));
+
+			iframe.contentWindow.postMessage(iframe_data, '*');
 			
-			form.submit();
+			// form.submit();
 			// $('#lyra-poster').contents().find('#lyra-form').append('Hey, ive changed content of body! Yay!!!');
 		});
-
-
-		var form = $('#lyra-poster').contents().find('#lyra-form');
-		form.append('<input type="hidden" name="vads_site_id" id="vads_site_id" value="12345678">');
-		form.submit();
 	}
 
 	function ccEntry() {
 		$('body').append('<div id="lyra-bg" class="overlay"></div>');
-		$('body').append('<div id="lyra-cc"></div>');
+		$('body').append(
+'<div id="lyra-cc">' + 
+'  <form class="form-horizontal">' + 
+'  <div class="row">' + 
+'    <div class="col-xs-12">' + 
+'      <h3><p class="text-center">PayZen</p></h3>' + 
+'    </div>' + 
+'  </div>' + 
+'  <hr/>' + 
+'  <div class="row">' + 
+'    <div class="col-xs-12">' + 
+'      <div class="input-group">' + 
+'        <span class="input-group-addon"><i class="fa fa-credit-card"></i></span>' + 
+'        <input type="text" class="form-control" placeholder="Card number">' + 
+'        <span class="input-group-addon"><i class="fa fa-question"></i></span>' + 
+'      </div>' + 
+'    </div>' + 
+'  </div>' + 
+'  <div class="row">' + 
+'  <br />' + 
+'  </div>' + 
+'  <div class="row">' + 
+'    <div class="col-xs-6">' + 
+'      <div class="input-group">' + 
+'        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>' + 
+'        <input type="text" class="form-control" placeholder="MM / YY">' +     
+'      </div>' + 
+'    </div>' + 
+'    <div class="col-xs-6">' + 
+'      <div class="input-group">' + 
+'        <span class="input-group-addon"><i class="fa fa-lock"></i></span>' + 
+'        <input type="text" class="form-control" placeholder="CVC">' +     
+'      </div>' + 
+'      </div>' + 
+'  </div>' + 
+'  <hr/>' + 
+'  <div class="row">' + 
+'    <div class="col-xs-12">' +  
+'      <div class="btn-group btn-group-justified" role="group" aria-label="...">' + 
+'        <div class="btn-group" role="group">' + 
+'          <button id="lyra-go" type="button" class="btn btn-primary">Chargement...</button>' + 
+'        </div>' + 
+'      </div>' + 
+'    </div>' + 
+'  </div>' + 
+'  </form>' + 
+'</div>');
 
-		$('#lyra-cc').load('lyra-cc.html', function() {
-			var amount = $('#lyra-pay').data("amount");
-			var currency = $('#lyra-pay').data("currency");
-			amount = amount / 100;
-			$('#lyra-go').html("Pay " + amount + ' ' + currency);
-				$('#lyra-go').click( ccSubmit );
-		});
+		var amount = $('#lyra-pay').data("amount");
+		var currency = $('#lyra-pay').data("currency");
+		amount = amount / 100;
+		$('#lyra-go').html("Pay " + amount + ' ' + currency);
+		$('#lyra-go').click( ccSubmit );
 	}
 
 	$('#lyra-pay').click( ccEntry );
+	console.log(document.location);
+
+	function back(event) {
+		// alert(event.data);
+		event.data.substr(1).split('&').forEach(function(item){
+			kv = item.split('=');
+			if (kv[0] == 'vads_result') {
+				$('#lyra-poster').remove();	
+				$('#lyra-cc').html(kv[1]);
+				// TODO
+			}
+		});
+	}
+	if ('addEventListener' in window) {
+		window.addEventListener('message', back);	
+	} else if ('attachEvent' in window) {
+		window.attachEvent('onMessage', back);	
+	}
 
 
+//////////////////////////////////////////////////////////////////
 
 
+	function sha1(str) {
+	  //  discuss at: http://phpjs.org/functions/sha1/
+	  // original by: Webtoolkit.info (http://www.webtoolkit.info/)
+	  // improved by: Michael White (http://getsprink.com)
+	  // improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+	  //    input by: Brett Zamir (http://brett-zamir.me)
+	  //   example 1: sha1('Kevin van Zonneveld');
+	  //   returns 1: '54916d2e62f65b3afa6e192e6a601cdbe5cb5897'
 
+	  var rotate_left = function(n, s) {
+	    var t4 = (n << s) | (n >>> (32 - s));
+	    return t4;
+	  };
 
-function sha1(str) {
-  //  discuss at: http://phpjs.org/functions/sha1/
-  // original by: Webtoolkit.info (http://www.webtoolkit.info/)
-  // improved by: Michael White (http://getsprink.com)
-  // improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-  //    input by: Brett Zamir (http://brett-zamir.me)
-  //   example 1: sha1('Kevin van Zonneveld');
-  //   returns 1: '54916d2e62f65b3afa6e192e6a601cdbe5cb5897'
+	  /*var lsb_hex = function (val) {
+	   // Not in use; needed?
+	    var str="";
+	    var i;
+	    var vh;
+	    var vl;
 
-  var rotate_left = function(n, s) {
-    var t4 = (n << s) | (n >>> (32 - s));
-    return t4;
-  };
+	    for ( i=0; i<=6; i+=2 ) {
+	      vh = (val>>>(i*4+4))&0x0f;
+	      vl = (val>>>(i*4))&0x0f;
+	      str += vh.toString(16) + vl.toString(16);
+	    }
+	    return str;
+	  };*/
 
-  /*var lsb_hex = function (val) {
-   // Not in use; needed?
-    var str="";
-    var i;
-    var vh;
-    var vl;
+	  var cvt_hex = function(val) {
+	    var str = '';
+	    var i;
+	    var v;
 
-    for ( i=0; i<=6; i+=2 ) {
-      vh = (val>>>(i*4+4))&0x0f;
-      vl = (val>>>(i*4))&0x0f;
-      str += vh.toString(16) + vl.toString(16);
-    }
-    return str;
-  };*/
+	    for (i = 7; i >= 0; i--) {
+	      v = (val >>> (i * 4)) & 0x0f;
+	      str += v.toString(16);
+	    }
+	    return str;
+	  };
 
-  var cvt_hex = function(val) {
-    var str = '';
-    var i;
-    var v;
+	  var blockstart;
+	  var i, j;
+	  var W = new Array(80);
+	  var H0 = 0x67452301;
+	  var H1 = 0xEFCDAB89;
+	  var H2 = 0x98BADCFE;
+	  var H3 = 0x10325476;
+	  var H4 = 0xC3D2E1F0;
+	  var A, B, C, D, E;
+	  var temp;
 
-    for (i = 7; i >= 0; i--) {
-      v = (val >>> (i * 4)) & 0x0f;
-      str += v.toString(16);
-    }
-    return str;
-  };
+	  // utf8_encode
+	  str = unescape(encodeURIComponent(str));
+	  var str_len = str.length;
 
-  var blockstart;
-  var i, j;
-  var W = new Array(80);
-  var H0 = 0x67452301;
-  var H1 = 0xEFCDAB89;
-  var H2 = 0x98BADCFE;
-  var H3 = 0x10325476;
-  var H4 = 0xC3D2E1F0;
-  var A, B, C, D, E;
-  var temp;
+	  var word_array = [];
+	  for (i = 0; i < str_len - 3; i += 4) {
+	    j = str.charCodeAt(i) << 24 | str.charCodeAt(i + 1) << 16 | str.charCodeAt(i + 2) << 8 | str.charCodeAt(i + 3);
+	    word_array.push(j);
+	  }
 
-  // utf8_encode
-  str = unescape(encodeURIComponent(str));
-  var str_len = str.length;
+	  switch (str_len % 4) {
+	  case 0:
+	    i = 0x080000000;
+	    break;
+	  case 1:
+	    i = str.charCodeAt(str_len - 1) << 24 | 0x0800000;
+	    break;
+	  case 2:
+	    i = str.charCodeAt(str_len - 2) << 24 | str.charCodeAt(str_len - 1) << 16 | 0x08000;
+	    break;
+	  case 3:
+	    i = str.charCodeAt(str_len - 3) << 24 | str.charCodeAt(str_len - 2) << 16 | str.charCodeAt(str_len - 1) <<
+	      8 | 0x80;
+	    break;
+	  }
 
-  var word_array = [];
-  for (i = 0; i < str_len - 3; i += 4) {
-    j = str.charCodeAt(i) << 24 | str.charCodeAt(i + 1) << 16 | str.charCodeAt(i + 2) << 8 | str.charCodeAt(i + 3);
-    word_array.push(j);
-  }
+	  word_array.push(i);
 
-  switch (str_len % 4) {
-  case 0:
-    i = 0x080000000;
-    break;
-  case 1:
-    i = str.charCodeAt(str_len - 1) << 24 | 0x0800000;
-    break;
-  case 2:
-    i = str.charCodeAt(str_len - 2) << 24 | str.charCodeAt(str_len - 1) << 16 | 0x08000;
-    break;
-  case 3:
-    i = str.charCodeAt(str_len - 3) << 24 | str.charCodeAt(str_len - 2) << 16 | str.charCodeAt(str_len - 1) <<
-      8 | 0x80;
-    break;
-  }
+	  while ((word_array.length % 16) != 14) {
+	    word_array.push(0);
+	  }
 
-  word_array.push(i);
+	  word_array.push(str_len >>> 29);
+	  word_array.push((str_len << 3) & 0x0ffffffff);
 
-  while ((word_array.length % 16) != 14) {
-    word_array.push(0);
-  }
+	  for (blockstart = 0; blockstart < word_array.length; blockstart += 16) {
+	    for (i = 0; i < 16; i++) {
+	      W[i] = word_array[blockstart + i];
+	    }
+	    for (i = 16; i <= 79; i++) {
+	      W[i] = rotate_left(W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16], 1);
+	    }
 
-  word_array.push(str_len >>> 29);
-  word_array.push((str_len << 3) & 0x0ffffffff);
+	    A = H0;
+	    B = H1;
+	    C = H2;
+	    D = H3;
+	    E = H4;
 
-  for (blockstart = 0; blockstart < word_array.length; blockstart += 16) {
-    for (i = 0; i < 16; i++) {
-      W[i] = word_array[blockstart + i];
-    }
-    for (i = 16; i <= 79; i++) {
-      W[i] = rotate_left(W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16], 1);
-    }
+	    for (i = 0; i <= 19; i++) {
+	      temp = (rotate_left(A, 5) + ((B & C) | (~B & D)) + E + W[i] + 0x5A827999) & 0x0ffffffff;
+	      E = D;
+	      D = C;
+	      C = rotate_left(B, 30);
+	      B = A;
+	      A = temp;
+	    }
 
-    A = H0;
-    B = H1;
-    C = H2;
-    D = H3;
-    E = H4;
+	    for (i = 20; i <= 39; i++) {
+	      temp = (rotate_left(A, 5) + (B ^ C ^ D) + E + W[i] + 0x6ED9EBA1) & 0x0ffffffff;
+	      E = D;
+	      D = C;
+	      C = rotate_left(B, 30);
+	      B = A;
+	      A = temp;
+	    }
 
-    for (i = 0; i <= 19; i++) {
-      temp = (rotate_left(A, 5) + ((B & C) | (~B & D)) + E + W[i] + 0x5A827999) & 0x0ffffffff;
-      E = D;
-      D = C;
-      C = rotate_left(B, 30);
-      B = A;
-      A = temp;
-    }
+	    for (i = 40; i <= 59; i++) {
+	      temp = (rotate_left(A, 5) + ((B & C) | (B & D) | (C & D)) + E + W[i] + 0x8F1BBCDC) & 0x0ffffffff;
+	      E = D;
+	      D = C;
+	      C = rotate_left(B, 30);
+	      B = A;
+	      A = temp;
+	    }
 
-    for (i = 20; i <= 39; i++) {
-      temp = (rotate_left(A, 5) + (B ^ C ^ D) + E + W[i] + 0x6ED9EBA1) & 0x0ffffffff;
-      E = D;
-      D = C;
-      C = rotate_left(B, 30);
-      B = A;
-      A = temp;
-    }
+	    for (i = 60; i <= 79; i++) {
+	      temp = (rotate_left(A, 5) + (B ^ C ^ D) + E + W[i] + 0xCA62C1D6) & 0x0ffffffff;
+	      E = D;
+	      D = C;
+	      C = rotate_left(B, 30);
+	      B = A;
+	      A = temp;
+	    }
 
-    for (i = 40; i <= 59; i++) {
-      temp = (rotate_left(A, 5) + ((B & C) | (B & D) | (C & D)) + E + W[i] + 0x8F1BBCDC) & 0x0ffffffff;
-      E = D;
-      D = C;
-      C = rotate_left(B, 30);
-      B = A;
-      A = temp;
-    }
+	    H0 = (H0 + A) & 0x0ffffffff;
+	    H1 = (H1 + B) & 0x0ffffffff;
+	    H2 = (H2 + C) & 0x0ffffffff;
+	    H3 = (H3 + D) & 0x0ffffffff;
+	    H4 = (H4 + E) & 0x0ffffffff;
+	  }
 
-    for (i = 60; i <= 79; i++) {
-      temp = (rotate_left(A, 5) + (B ^ C ^ D) + E + W[i] + 0xCA62C1D6) & 0x0ffffffff;
-      E = D;
-      D = C;
-      C = rotate_left(B, 30);
-      B = A;
-      A = temp;
-    }
-
-    H0 = (H0 + A) & 0x0ffffffff;
-    H1 = (H1 + B) & 0x0ffffffff;
-    H2 = (H2 + C) & 0x0ffffffff;
-    H3 = (H3 + D) & 0x0ffffffff;
-    H4 = (H4 + E) & 0x0ffffffff;
-  }
-
-  temp = cvt_hex(H0) + cvt_hex(H1) + cvt_hex(H2) + cvt_hex(H3) + cvt_hex(H4);
-  return temp.toLowerCase();
-}
+	  temp = cvt_hex(H0) + cvt_hex(H1) + cvt_hex(H2) + cvt_hex(H3) + cvt_hex(H4);
+	  return temp.toLowerCase();
+	}
 
 }());

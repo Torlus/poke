@@ -1,7 +1,23 @@
 <!doctype html>
 <html class="no-js" lang="">
-    <head></head>
+    <head>
+    	<script type="text/javascript">
+    	function post(event) {
+    		$('#lyra-form').append(event.data);
+    		$('#lyra-form').submit();
+    	}
+    	if ('addEventListener' in window) {
+    		window.addEventListener('message', post);	
+    	} else if ('attachEvent' in window) {
+    		window.attachEvent('onMessage', post);	
+    	}
+    	
+    	</script>
+    </head>
     <body>
 		<form action="https://demo.payzen.eu/vads-payment/" method="POST" id="lyra-form"></form>    	
+    
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.3.min.js"><\/script>')</script>
     </body>
 </html>
