@@ -1,9 +1,10 @@
 (function() {
 
-	function ccSubmit() {
+	function ccSubmit(output) {
 		$('body').append('<div id="lyra-post"><iframe id="lyra-poster" src="lyra-post.html"></iframe></div>');
 		$('#lyra-post').width($('#lyra-cc').width());
 		$('#lyra-post').height($('#lyra-cc').height());
+		$('#lyra-cc').toggleClass("animated bounceInDown");
 		$('#lyra-poster').load(function() {
 			var url = document.location.origin + document.location.pathname	 + 'lyra-back.html';
 			// var url = 'lyra-back.html';			
@@ -19,20 +20,20 @@
 			}
 			
 			add("vads_action_mode", "SILENT");
-			// add("vads_action_mode", "INTERACTIVE");
+			//add("vads_action_mode", "INTERACTIVE");
 			add("vads_amount", "1337");
 			add("vads_capture_delay", "0");
-			add("vads_card_number", "4970100000000000");
+			add("vads_card_number", output['number']);
 			add("vads_ctx_mode", "TEST");
 			add("vads_currency", "978");
-			add("vads_cvv", "123");
-			add("vads_expiry_month", "5");
-			add('vads_expiry_year', "2017");
+			add("vads_cvv", output['security_code']);
+			add("vads_expiry_month", output['expiration_month']);
+			add('vads_expiry_year', output['expiration_year']);
 			add('vads_page_action', "PAYMENT");
-			add('vads_payment_cards', "VISA");
+			add('vads_payment_cards', "CB");
 			add('vads_payment_config', "SINGLE");
 			add('vads_return_mode', "GET");
-			add('vads_site_id', "29035693");
+			add('vads_site_id', "91335531" /*"29035693"*/);
 			var now = new Date();
 			var mm = '' + (now.getUTCMonth() + 1);
 			while(mm.length < 2) mm = "0" + mm;
@@ -55,7 +56,7 @@
 			for(var idx in p) { 
 				sigcnt += p[idx] + '+'; 
 			};
-			sigcnt += "1910412435639844";
+			sigcnt += "8627912856153542" /*"1910412435639844"*/;
 			console.log(sigcnt);
 			add("signature", sha1(sigcnt));
 
@@ -67,64 +68,53 @@
 	}
 
 	function ccEntry() {
-		$('body').append('<div id="lyra-bg" class="overlay"></div>');
-		$('body').append(
-'<div id="lyra-cc">' + 
-'  <form class="form-horizontal">' + 
-'  <div class="row">' + 
-'    <div class="col-xs-12">' + 
-'      <h3><p class="text-center">PayZen</p></h3>' + 
-'    </div>' + 
-'  </div>' + 
-'  <hr/>' + 
-'  <div class="row">' + 
-'    <div class="col-xs-12">' + 
-'      <div class="input-group">' + 
-'        <span class="input-group-addon"><i class="fa fa-credit-card"></i></span>' + 
-'        <input type="text" class="form-control" placeholder="Card number">' + 
-'        <span class="input-group-addon"><i class="fa fa-question"></i></span>' + 
-'      </div>' + 
-'    </div>' + 
-'  </div>' + 
-'  <div class="row">' + 
-'  <br />' + 
-'  </div>' + 
-'  <div class="row">' + 
-'    <div class="col-xs-6">' + 
-'      <div class="input-group">' + 
-'        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>' + 
-'        <input type="text" class="form-control" placeholder="MM / YY">' +     
-'      </div>' + 
-'    </div>' + 
-'    <div class="col-xs-6">' + 
-'      <div class="input-group">' + 
-'        <span class="input-group-addon"><i class="fa fa-lock"></i></span>' + 
-'        <input type="text" class="form-control" placeholder="CVC">' +     
-'      </div>' + 
-'      </div>' + 
-'  </div>' + 
-'  <hr/>' + 
-'  <div class="row">' + 
-'    <div class="col-xs-12">' +  
-'      <div class="btn-group btn-group-justified" role="group" aria-label="...">' + 
-'        <div class="btn-group" role="group">' + 
-'          <button id="lyra-go" type="button" class="btn btn-primary">Chargement...</button>' + 
-'        </div>' + 
-'      </div>' + 
-'    </div>' + 
-'  </div>' + 
-'  </form>' + 
-'</div>');
+		$('body').append('<div id="lyra-bg"></div>');
+		$('body').append('<div id="lyra-cc-outer"><div id="lyra-cc"></div></div>');
+		$('#lyra-cc').load( "lyra-form.html", function() {
+			$('#lyra-cc').toggleClass("animated bounceInDown");
+			var creditly = Creditly.initialize(
+          '.creditly-wrapper .expiration-month-and-year',
+          '.creditly-wrapper .credit-card-number',
+          '.creditly-wrapper .security-code',
+          '.creditly-wrapper .card-type');
+      /* $(".creditly-card-form .submit").click(function(e) {
+        e.preventDefault();
+        var output = creditly.validate();
+        if (output) {
+          // Your validated credit card output
+          console.log(output);
+        }
+      }); */
 
-		var amount = $('#lyra-pay').data("amount");
-		var currency = $('#lyra-pay').data("currency");
-		amount = amount / 100;
-		$('#lyra-go').html("Pay " + amount + ' ' + currency);
-		$('#lyra-go').click( ccSubmit );
+			var amount = $('#lyra-pay').data("amount");
+			var currency = $('#lyra-pay').data("currency");
+			amount = amount / 100;
+			$('#lyra-go').html("Pay " + amount + ' ' + currency);
+			/* $('#lyra-go').click( ccSubmit ); */
+			$("#lyra-go").click(function(e) {
+        e.preventDefault();
+        var output = creditly.validate();
+        if (output) {
+          // Your validated credit card output
+          console.log(output);
+          ccSubmit(output);
+        }
+      });			
+		});
 	}
 
 	$('#lyra-pay').click( ccEntry );
-	console.log(document.location);
+	// console.log(document.location);
+
+	var tid;
+
+	function shutdown() {
+		clearInterval(tid);
+		$('#lyra-bg').remove();
+		$('#lyra-res').remove();
+		// $('#lyra-cc').remove();		
+		$('#lyra-cc').toggleClass("animated bounceOutDown");
+	}
 
 	function back(event) {
 		// alert(event.data);
@@ -132,11 +122,27 @@
 			kv = item.split('=');
 			if (kv[0] == 'vads_result') {
 				$('#lyra-poster').remove();	
-				$('#lyra-cc').html(kv[1]);
-				// TODO
+				//$('#lyra-cc').html(kv[1]);
+				console.log(kv[1]);
+				var anim = "shake";
+				var icon = "close";
+				var col = "res_ko";
+				if ("00" == kv[1]) {
+					anim = "tada";
+					icon = "check-circle";
+					col = "res_ok";
+				}
+				$('body').append('<div id="lyra-res-outer"><div id="lyra-res">' +
+					'<i class="fa fa-' + icon + ' fa-5x ' + col + '"></i>' +
+					'</div></div>');
+				$('#lyra-res').toggleClass("animated " + anim);
+				tid = setInterval(shutdown, 3000);
 			}
 		});
 	}
+
+
+
 	if ('addEventListener' in window) {
 		window.addEventListener('message', back);	
 	} else if ('attachEvent' in window) {
@@ -296,3 +302,4 @@
 	}
 
 }());
+
