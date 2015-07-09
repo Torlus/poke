@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+  <head>
+  <title>Credit card form</title>
+    <script src="js/gabe-checkout.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+    <!--link rel="stylesheet" href="https://wave-buoyant.s3.amazonaws.com/0.4.1-dev/buoyant.css"-->
+    <style>
+      body {
+        background: #F6F6F6;
+        font-family: Open Sans, Helvetica, Arial, sans-serif;
+        font-weight: 300;
+      }
+      
+      iframe {
+        overflow: hidden !important;
+        min-width: 0 !important;
+        width: auto !important;
+        height: auto !important;
+      }
+
+      #content {
+        width: 300px;
+        border: 1px solid #DDD;
+        margin: 30px auto;
+        background: #FFF;
+        border-radius: 9px;
+        height: 570px;
+        overflow: hidden;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+
+      #success {
+        width: 300px;
+        background: #FFF;
+        height: 570px;
+        border: 1px solid #DDD;
+        margin: 30px auto;
+        border-radius: 9px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        display: none;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+
+      .icon-holder {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        margin: 0 auto;
+        background: #54C7C3;
+        color: #FFF;
+        margin-top: 100px;
+        margin-bottom: 40px;
+      }
+
+      .payment-amount {
+        font-size: 36px;
+        font-weight: 300;
+      }
+
+      .payment-message {
+         font-size: 18px;
+         margin-bottom: 100px;
+      }
+
+      .payment-verification {
+        font-size: 18px;
+        color: #5B6E78;
+      }
+
+      .payment-verification-code {
+         font-size: 14px;
+         color: #5B6E78;
+      }
+
+      #btn-close {
+         position: absolute;
+         top: 0px;
+         right: 20px;
+         font-size: 44px;
+         color: #999;
+      }
+
+      #btn-close:hover {
+         color: #D42D2D;
+         cursor: pointer;
+      }
+
+      .wv-icon--check {
+         font-size: 46px;
+         color: #FFF;
+         margin-top: 40px;
+      }
+
+      .btn-view-receipt {
+        border-radius: 5px;
+        border: 1px solid #DDD;
+        padding: 8px 20px;
+        width: 200px;
+        margin: 0 auto;
+        margin-top: 20px;
+        cursor: pointer;
+        font-weight: 400;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="success">
+      <div id="btn-close">Ã—</div>
+      <div class="icon-holder"><i class="wv-icon--check"></i></div>
+      <div class="payment-amount">$500.00</div>
+      <div class="payment-message">Your payment is complete.</div>
+      <div class="payment-verification">Verification code:</div>
+      <div class="payment-verification-code">L9823KJSQ34</div>
+      <div class="btn-view-receipt">View receipt</div>
+    </div>
+    </div>
+    <div id="content"></div>
+    <p style="text-align: center;"><strong>Important:</strong> This is a demo. Your credit card will not be charged or stored.</p>
+    <script>
+      var checkout = new window.WPCheckout();
+      checkout.configure({
+        key: "gabe",
+        displayType: checkout.DISPLAY_TYPES.INLINE,
+        container: document.querySelector("#content"),
+        headerText: "Pay Invoice",
+        closeOnSuccess: false,
+        amount: 50000,
+        mode: checkout.MODES.SALE,
+        onSuccess: function(token) {
+          checkout.paymentComplete();
+          setTimeout(function(){
+            document.querySelector("#success").style.display = "block";
+            document.querySelector("#content").style.display = "none";
+            },1000
+          );
+          // checkout.paymentEditing();
+        },
+        onHeightChange: function(height) {
+          document.querySelector("#content").style.height = height + 27;
+        }
+      });
+      checkout.open();
+
+      var btnClose = document.getElementById('btn-close');
+      btnClose.addEventListener('click', function() {
+        location.reload();
+    }, false);
+
+    </script>
+  <body>
+</html>
