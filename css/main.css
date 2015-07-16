@@ -150,7 +150,7 @@ textarea {
     border-radius: 1em;
     padding: 1em;
     position: absolute;
-    width: 30em;
+    width: 24em;
     height: 30em;
     top: 50%;
     left: 50%;
@@ -160,7 +160,7 @@ textarea {
 
 #lyra-cc {
     border-radius: 1em;
-    padding: 1em;
+    /* padding: 1em; */
     background: white;
     color: black;
 }
@@ -218,8 +218,8 @@ textarea {
             animation: fadein 0.5s; 
 }
 
-.res_ok { color: #0d0; }
-.res_ko { color: #d00; }
+.res_ok { background-color: #0d0; }
+.res_ko { background-color: #d00; }
 
 
 

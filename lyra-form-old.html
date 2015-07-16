@@ -1,0 +1,59 @@
+  <form class="form-horizontal"> 
+  <div class="row"> 
+    <div class="col-xs-12"> 
+      <h3><p class="text-center">PayZen</p></h3> 
+    </div> 
+  </div> 
+  <hr/> 
+<section class="creditly-wrapper">
+<div class="credit-card-wrapper">
+  <div class="row"> 
+    <div class="col-xs-12"> 
+      <div class="input-group"> 
+        <span class="input-group-addon"><i class="fa fa-credit-card"></i></span> 
+        <input type="text" class="number credit-card-number form-control" 
+              name="number"
+              pattern="(\d*\s){3}\d*"
+              inputmode="numeric" autocomplete="cc-number" autocompletetype="cc-number" x-autocompletetype="cc-number"
+              placeholder="&#149;&#149;&#149;&#149; &#149;&#149;&#149;&#149; &#149;&#149;&#149;&#149; &#149;&#149;&#149;&#149;">
+        <span class="input-group-addon"><i class="fa fa-cc-visa"></i></span> 
+      </div> 
+    </div>
+  </div> 
+  <div class="row"> 
+  <br /> 
+  </div> 
+  <div class="row"> 
+    <div class="col-xs-6"> 
+      <div class="input-group"> 
+        <span class="input-group-addon"><i class="fa fa-calendar"></i></span> 
+        <input class="expiration-month-and-year form-control"
+              type="text" name="expiration-month-and-year"
+              placeholder="MM / YY">     
+      </div> 
+    </div> 
+    <div class="col-xs-6"> 
+      <div class="input-group"> 
+        <span class="input-group-addon"><i class="fa fa-lock"></i></span> 
+        <input class="security-code form-control"
+          inputmode="numeric"
+          pattern="\d*"
+          type="text" name="security-code"
+          placeholder="&#149;&#149;&#149;">
+      </div> 
+    </div> 
+  </div>
+  <div class="card-type"></div>
+</div>
+  <hr/> 
+  <div class="row"> 
+    <div class="col-xs-12">  
+      <div class="btn-group btn-group-justified" role="group" aria-label="..."> 
+        <div class="btn-group" role="group"> 
+          <button id="lyra-go" type="button" class="btn btn-primary">Please Wait</button> 
+        </div> 
+      </div> 
+    </div> 
+  </div> 
+</section>
+</form>

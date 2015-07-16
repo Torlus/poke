@@ -2,8 +2,8 @@
 
 	function ccSubmit(output) {
 		$('body').append('<div id="lyra-post"><iframe id="lyra-poster" src="lyra-post.html"></iframe></div>');
-		$('#lyra-post').width($('#lyra-cc').width());
-		$('#lyra-post').height($('#lyra-cc').height());
+		//$('#lyra-post').width($('#lyra-cc').width());
+		//$('#lyra-post').height($('#lyra-cc').height());
 		$('#lyra-cc').toggleClass("animated bounceInDown");
 		$('#lyra-poster').load(function() {
 			var url = document.location.origin + document.location.pathname	 + 'lyra-back.html';
@@ -21,7 +21,7 @@
 			
 			add("vads_action_mode", "SILENT");
 			//add("vads_action_mode", "INTERACTIVE");
-			add("vads_amount", "1337");
+			add("vads_amount", $('#lyra-pay').data("amount"));
 			add("vads_capture_delay", "0");
 			add("vads_card_number", output['number']);
 			add("vads_ctx_mode", "TEST");
@@ -67,81 +67,189 @@
 		});
 	}
 
+	function digitsOnly(e) {
+        // Allow: backspace, delete, tab, escape, enter
+        if ($.inArray(e.keyCode, [8, 9, 27, 13, 110, 190]) !== -1 ||
+            // Allow: Ctrl+A, Command+A
+            (e.keyCode == 65 && ( e.ctrlKey === true || e.metaKey === true ) ) || 
+            // Allow: home, end, left, right, down, up
+            (e.keyCode >= 35 && e.keyCode <= 40)) {
+                return;
+        }
+        // Ensure that it is a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+	}
+
+	var timerFormInvalid;
+	function formInvalid() {
+		clearInterval(timerFormInvalid);
+		$('#lyra-pp').toggleClass("animated swing");
+		$('#PayButton').removeAttr("disabled");
+	}
+	
+
+	function ccCheck() {
+		$('#PayButton').attr("disabled", "disabled");
+		var output = {};
+		var ok = true;
+		var num = $("#CreditCardNumber").val();
+		num = num.replace(/[ \/]/g, '');
+		if (num.length != 16) {
+			ok = false;
+		} else {
+			output['number'] = num;
+		}
+		var mmyy = $("#ExpiryDate").val();
+		mmyy = mmyy.replace(/[ \/]/g, '');
+		if (mmyy.length != 4) {
+			ok = false;
+		} else {
+			var mm = mmyy.substring(0,2);
+			var yy = mmyy.substring(2,4);
+			if (mm < "01" || mm > "12") {
+				ok = false;
+			} else {
+				output['expiration_month'] = mm;
+				output['expiration_year'] = "20" + yy;
+			}
+		}
+		var sc = $("#SecurityCode").val();
+		sc = sc.replace(/[ \/]/g, '');
+		if (sc.length < 3) {
+			ok = false;
+		} else {
+			output['security_code'] = sc;
+		}
+
+		if (ok) {
+			ccSubmit(output);
+		} else {
+			$('#lyra-pp').toggleClass("animated swing");
+			timerFormInvalid = setInterval(formInvalid, 2000);
+		}
+	}
+
+
 	function ccEntry() {
 		$('body').append('<div id="lyra-bg"></div>');
 		$('body').append('<div id="lyra-cc-outer"><div id="lyra-cc"></div></div>');
 		$('#lyra-cc').load( "lyra-form.html", function() {
 			$('#lyra-cc').toggleClass("animated bounceInDown");
-			var creditly = Creditly.initialize(
-          '.creditly-wrapper .expiration-month-and-year',
-          '.creditly-wrapper .credit-card-number',
-          '.creditly-wrapper .security-code',
-          '.creditly-wrapper .card-type');
-      /* $(".creditly-card-form .submit").click(function(e) {
-        e.preventDefault();
-        var output = creditly.validate();
-        if (output) {
-          // Your validated credit card output
-          console.log(output);
-        }
-      }); */
-
 			var amount = $('#lyra-pay').data("amount");
 			var currency = $('#lyra-pay').data("currency");
 			amount = amount / 100;
-			$('#lyra-go').html("Pay " + amount + ' ' + currency);
+			$('#PayButton').html("Pay " + amount + ' ' + currency);
 			/* $('#lyra-go').click( ccSubmit ); */
-			$("#lyra-go").click(function(e) {
-        e.preventDefault();
-        var output = creditly.validate();
-        if (output) {
-          // Your validated credit card output
-          console.log(output);
-          ccSubmit(output);
-        }
-      });			
+			$("#CreditCardNumber").keydown(digitsOnly);
+			$("#CreditCardNumber").keyup(function (e) {
+				digitsOnly(e);
+				var text = $(this).val();
+				if (text.length > 16+3)
+					text = text.substr(0, 16+3);
+				var digits = text;
+				digits = digits.replace(/ /g,'');
+
+				if (digits.length > 12) {
+					text = digits.substring(0, 4) + ' ' + digits.substring(4, 8) + ' ' + digits.substring(8,12) + ' ' + digits.substring(12);
+				} else if (digits.length > 8) {
+					text = digits.substring(0, 4) + ' ' + digits.substring(4, 8) + ' ' + digits.substring(8);
+				} else if (digits.length > 4) {
+					text = digits.substring(0, 4) + ' ' + digits.substring(4);
+				} 
+				if (e.keyCode == 8 || e.keyCode == 9) {
+				} else {
+					if (text.length == 4 || text.length == 9 || text.length == 14) {
+						text += ' ';
+					}
+				}				
+				$(this).val(text);
+		    });
+		    $("#ExpiryDate").keydown(digitsOnly);
+			$("#ExpiryDate").keyup(function (e) {
+				digitsOnly(e);
+				var text = $(this).val();
+				if (text.length > 4+3)
+					text = text.substr(0, 4+3);
+				var digits = text;
+				digits = digits.replace(/[ \/]/g,'');
+
+				if (digits.length > 2) {
+					text = digits.substring(0, 2) + ' / ' + digits.substring(2);
+				} else {
+					text = digits;
+				}
+
+				if (e.keyCode == 8 || e.keyCode == 9) {
+				} else {
+					if (text.length == 2 && digits.length == 2) {
+						text += ' / ';
+					}
+				}
+				$(this).val(text);
+		    });
+		    $("#SecurityCode").keydown(digitsOnly);
+			$("#SecurityCode").keyup(function (e) {
+				digitsOnly(e);
+				var text = $(this).val();
+				if (text.length > 4)
+					text = text.substr(0, 4);
+				$(this).val(text);
+		    });
+
+			$(document).keypress(function(e) {
+				if (e.keyCode == 13) {
+					ccCheck();
+					e.preventDefault();
+				}
+			});
+
+			$("#PayButton").click(ccCheck);
 		});
 	}
 
 	$('#lyra-pay').click( ccEntry );
-	// console.log(document.location);
+	// ccEntry();
 
 	var tid;
 
 	function shutdown() {
 		clearInterval(tid);
-		$('#lyra-bg').remove();
-		$('#lyra-res').remove();
+		tid = setInterval(goodbye, 2000);
+		// $('#lyra-bg').remove();
+		// $('#lyra-res').remove();
 		// $('#lyra-cc').remove();		
 		$('#lyra-cc').toggleClass("animated bounceOutDown");
 	}
 
+	function goodbye() {
+		$('#lyra-bg').remove();
+	}
+
 	function back(event) {
 		// alert(event.data);
+		$('#PayButton').removeAttr("disabled");
 		event.data.substr(1).split('&').forEach(function(item){
 			kv = item.split('=');
 			if (kv[0] == 'vads_result') {
 				$('#lyra-poster').remove();	
-				//$('#lyra-cc').html(kv[1]);
-				console.log(kv[1]);
-				var anim = "shake";
-				var icon = "close";
-				var col = "res_ko";
+				$('#PayButton').toggleClass('btn-primary');
 				if ("00" == kv[1]) {
-					anim = "tada";
-					icon = "check-circle";
-					col = "res_ok";
+					$('#PayButton').toggleClass('btn-success');
+					$('#PayButton').html('<span class="align-middle">SUCCESS</span>');
+					$('#PayButton').click(function() {});
+					$('#PayButton').toggleClass("animated tada");
+				} else {
+					$('#PayButton').toggleClass('btn-danger');
+					$('#PayButton').html('<span class="align-middle">FAILURE</span>');
+					$('#PayButton').click(function() {});
+					$('#PayButton').toggleClass("animated shake");
 				}
-				$('body').append('<div id="lyra-res-outer"><div id="lyra-res">' +
-					'<i class="fa fa-' + icon + ' fa-5x ' + col + '"></i>' +
-					'</div></div>');
-				$('#lyra-res').toggleClass("animated " + anim);
 				tid = setInterval(shutdown, 3000);
 			}
 		});
 	}
-
-
 
 	if ('addEventListener' in window) {
 		window.addEventListener('message', back);	
@@ -149,6 +257,8 @@
 		window.attachEvent('onMessage', back);	
 	}
 
+
+//////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////
 
@@ -302,4 +412,3 @@
 	}
 
 }());
-
